@@ -1,7 +1,7 @@
 # Intent: Daily standup note
 Author: Thien Le (Training Lead). Status: approved.
 
-Source: `specs/standup-note/00-client-brief.md`
+Source: `client-brief.md` (same folder)
 
 ## Problem
 At the end of each day, learners give a 10-minute standup in Slack about what they shipped that day. Today they retype everything from memory, because the training app has no place to write it down. The "Mark Day X as complete" checkbox only records done or not done, not what was actually delivered.

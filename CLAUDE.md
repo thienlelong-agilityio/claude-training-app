@@ -15,6 +15,10 @@ Baseline v1.0 of the Days 12–15 Cross-functional Capstone pages from the AI To
 - `src/components/` — UI components (`RichText`, `SkillAccordion`, `CompletionCard`, …)
 - `src/app/` — Next.js routes (`/`, `/schedule/[dayId]`, `/login`, `/after-the-program`)
 
+## Intent and spec artifacts (AI-native SDLC)
+- One folder per change: `docs/features/<feature-slug>/` holding `client-brief.md` (source), `intent.md` (Stage 1), `spec.md` (Stage 2) and `tickets/`.
+- Use `/capture-intent` for `intent.md`, then `/ticket-pack` for `spec.md` and tickets. Do not start Design until the product owner has approved `intent.md`.
+
 ## Hard rules
 - Keep `src/lib/progress.ts` free of React/DOM/Next imports so Vitest runs in Node.
 - Never use `dangerouslySetInnerHTML` with user-supplied input.

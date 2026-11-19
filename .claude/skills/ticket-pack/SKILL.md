@@ -5,6 +5,12 @@ description: Convert vague feature briefs into intent.md, Open Questions, Spec A
 
 # Ticket Pack (BA skill)
 
+## Where files go
+- Work inside the change's folder `docs/features/<feature-slug>/`. Read the approved `intent.md` there, and write `spec.md` and the tickets next to it.
+- Tickets go in `docs/features/<feature-slug>/tickets/`, one file per ticket, named `t01-<short-slug>.md`, `t02-...`.
+- Use plain lowercase names with no version suffixes. Git history is the version record.
+- `spec.md` starts with `From: intent.md. Status: draft.` and numbers its requirements (R1, R2, ...) so tickets can cite them.
+
 ## Phase 1 — Intake
 - Never assume missing requirements.
 - Produce `intent.md` with three sections: **What**, **Why**, **Constraints**.
