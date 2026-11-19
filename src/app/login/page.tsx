@@ -15,6 +15,13 @@ export default function LoginPage() {
   const [user, setUser] = useState<MockUser | null>(null);
   const [name, setName] = useState(DEFAULT_MOCK_USER.name);
   const [email, setEmail] = useState(DEFAULT_MOCK_USER.email);
+  const [message, setMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!message) return;
+    const t = setTimeout(() => setMessage(null), 3000);
+    return () => clearTimeout(t);
+  }, [message]);
 
   useEffect(() => {
     const stored = loadAuthUser();
@@ -34,7 +41,9 @@ export default function LoginPage() {
     mockCloudClient.isSignedIn = true;
     mockCloudClient.user = next;
     await mockCloudClient.saveAll(loadLocalProgress());
+    const wasSignedIn = user !== null;
     setUser(next);
+    setMessage(wasSignedIn ? 'Changes saved successfully.' : 'Signed in successfully.');
     window.dispatchEvent(new Event('training-auth-changed'));
   }
 
@@ -43,6 +52,7 @@ export default function LoginPage() {
     mockCloudClient.isSignedIn = false;
     mockCloudClient.user = null;
     setUser(null);
+    setMessage('Signed out successfully.');
     window.dispatchEvent(new Event('training-auth-changed'));
   }
 
@@ -95,7 +105,14 @@ export default function LoginPage() {
           </button>
         )}
       </div>
-      <Link href="/" className="mt-8 inline-block text-sm text-violet-700 hover:underline">
+      <div aria-live="polite" role="status" className="mt-4 min-h-[2.25rem]">
+        {message && (
+          <p className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-medium text-emerald-800">
+            ✓ {message}
+          </p>
+        )}
+      </div>
+      <Link href="/" className="mt-4 inline-block text-sm text-violet-700 hover:underline">
         ← Back to Schedule
       </Link>
     </div>
