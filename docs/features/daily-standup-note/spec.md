@@ -16,6 +16,8 @@ R9. The note area tells the learner that the note is saved in this browser, and 
 R10. The note field has a visible label, works with the keyboard, and its confirmation messages are announced to screen readers. (Policy: privacy-and-ux, rule 6.)
 R11. When the note is empty, the copy button cannot be used, and a short hint tells the learner to write a note first (see concern 5).
 R12. When a learner who already wrote a note signs in, the existing note is kept and is not overwritten (see concern 3). (Policy: privacy-and-ux, rule 4.)
+R13. The note saves automatically while the learner types, and the learner sees a short "Saved" message. (Decided by the product owner while the tickets were written, 2026-11-19.)
+R14. A note can be at most 500 characters. The learner sees how many characters are left, and cannot type past the limit. (Decided by the product owner while the tickets were written, 2026-11-19.)
 
 ## Current behavior
 - Each day's page has a "Mark Day X as complete" box. Ticking it is remembered in the learner's browser, and the overview page shows "✓ Completed" for that day. Unticking marks it not completed.
