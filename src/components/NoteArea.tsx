@@ -42,12 +42,8 @@ export default function NoteArea({ dayId }: { dayId: string }) {
       if (result === 'failed') setSaveFailed(true);
     }
 
-    function flushOnLeave() {
-      if (flush() === 'failed') setSaveFailed(true);
-    }
-
     function onHide() {
-      if (document.visibilityState === 'hidden') flushOnLeave();
+      if (document.visibilityState === 'hidden') onTimer();
     }
 
     scheduleRef.current = () => {
@@ -55,10 +51,10 @@ export default function NoteArea({ dayId }: { dayId: string }) {
       timerRef.current = setTimeout(onTimer, SAVE_DELAY_MS);
     };
 
-    window.addEventListener('pagehide', flushOnLeave);
+    window.addEventListener('pagehide', onTimer);
     document.addEventListener('visibilitychange', onHide);
     return () => {
-      window.removeEventListener('pagehide', flushOnLeave);
+      window.removeEventListener('pagehide', onTimer);
       document.removeEventListener('visibilitychange', onHide);
       scheduleRef.current = () => {};
       flush();

@@ -18,12 +18,23 @@ function defaultStorage(): NoteStorage | null {
   }
 }
 
+// One Segmenter for the whole module: the counter runs on every render.
+let segmenter: Intl.Segmenter | null | undefined;
+
+function getSegmenter(): Intl.Segmenter | null {
+  if (segmenter === undefined) {
+    segmenter =
+      typeof Intl !== 'undefined' && 'Segmenter' in Intl
+        ? new Intl.Segmenter(undefined, { granularity: 'grapheme' })
+        : null;
+  }
+  return segmenter;
+}
+
 // Split into characters as the learner sees them (an emoji is one).
 function toChars(text: string): string[] {
-  if (typeof Intl !== 'undefined' && 'Segmenter' in Intl) {
-    const seg = new Intl.Segmenter(undefined, { granularity: 'grapheme' });
-    return Array.from(seg.segment(text), (s) => s.segment);
-  }
+  const seg = getSegmenter();
+  if (seg) return Array.from(seg.segment(text), (s) => s.segment);
   return Array.from(text);
 }
 
