@@ -42,3 +42,6 @@ Baseline v1.0 of the Days 12–15 Cross-functional Capstone pages from the AI To
 
 ## Review
 - When reviewing a diff or a PR, follow `REVIEW.md`.
+
+## Skills
+- `/release-pack` drafts a feature's client release notes and an internal release ticket into `docs/releases/`. Manual only. It never tags, commits or pushes.
