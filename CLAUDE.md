@@ -32,3 +32,13 @@ Baseline v1.0 of the Days 12–15 Cross-functional Capstone pages from the AI To
 - Always use Plan Mode before editing files on new feature tickets.
 - Run `npm test` and `npm run build` before every commit.
 - Commit messages and PR descriptions must NOT contain any AI attribution: no `Co-Authored-By: Claude`, no `Claude-Session` link, no "Generated with Claude Code", no mention of AI/Claude as author. Write them as plain, human-style messages.
+
+## Verifying your work
+- Test: `npm test` (all green; never skip, delete or weaken a failing test)
+- Lint: `npm run lint` (must print "No ESLint warnings or errors")
+- Build: `npm run build` (must finish with "Compiled successfully")
+- Run all three before reporting any task complete, and paste the output. If a test fails, fix the code, not the test.
+- For a ticket, compare the diff with the "Files that change" list in its plan (`docs/features/<slug>/plans/tNN-plan.md`).
+
+## Review
+- When reviewing a diff or a PR, follow `REVIEW.md`.
