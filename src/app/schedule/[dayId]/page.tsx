@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import Badge from '@/components/Badge';
 import CompletionCard from '@/components/CompletionCard';
+import NoteArea from '@/components/NoteArea';
 import RichText from '@/components/RichText';
 import SkillAccordion from '@/components/SkillAccordion';
 import { CAPSTONE_DAYS, getCapstoneDay } from '@/data/capstone-days';
@@ -112,6 +113,7 @@ export default async function DayPage({ params }: { params: Promise<{ dayId: str
 
       <div className="mt-8">
         <CompletionCard dayId={day.id} dayNumber={day.dayNumber} />
+        <NoteArea key={day.id} dayId={day.id} />
       </div>
 
       <p className="mt-6 text-sm text-gray-600">
