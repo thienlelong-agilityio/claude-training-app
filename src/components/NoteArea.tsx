@@ -99,7 +99,7 @@ export default function NoteArea({ dayId }: { dayId: string }) {
           </span>
         )}
       </div>
-
+      {/* T03 slot: copy row */}
     </div>
   );
 }
