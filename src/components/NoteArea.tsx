@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, type ChangeEvent } from 'react';
-import { applyEdit, charsLeft, loadNote, saveNote } from '@/lib/notes';
+import { applyEdit, charsLeft, flushPending, loadNote, type FlushResult } from '@/lib/notes';
 
 const SAVE_DELAY_MS = 2000;
 
@@ -26,24 +26,28 @@ export default function NoteArea({ dayId }: { dayId: string }) {
 
     // Save the pending text now. Only when something is pending, so a
     // development-mode remount or a repeat event never saves unchanged text.
-    function flush(): boolean | null {
+    function flush(): FlushResult {
       if (timerRef.current) {
         clearTimeout(timerRef.current);
         timerRef.current = null;
       }
-      if (!pendingRef.current) return null;
-      pendingRef.current = false;
-      return saveNote(dayId, textRef.current);
+      const r = flushPending(dayId, textRef.current, pendingRef.current);
+      pendingRef.current = r.pending;
+      return r.result;
     }
 
     function onTimer() {
-      const ok = flush();
-      if (ok === true) setSaved(true);
-      if (ok === false) setSaveFailed(true);
+      const result = flush();
+      if (result === 'saved') setSaved(true);
+      if (result === 'failed') setSaveFailed(true);
+    }
+
+    function flushOnLeave() {
+      if (flush() === 'failed') setSaveFailed(true);
     }
 
     function onHide() {
-      if (document.visibilityState === 'hidden') flush();
+      if (document.visibilityState === 'hidden') flushOnLeave();
     }
 
     scheduleRef.current = () => {
@@ -51,10 +55,10 @@ export default function NoteArea({ dayId }: { dayId: string }) {
       timerRef.current = setTimeout(onTimer, SAVE_DELAY_MS);
     };
 
-    window.addEventListener('pagehide', flush);
+    window.addEventListener('pagehide', flushOnLeave);
     document.addEventListener('visibilitychange', onHide);
     return () => {
-      window.removeEventListener('pagehide', flush);
+      window.removeEventListener('pagehide', flushOnLeave);
       document.removeEventListener('visibilitychange', onHide);
       scheduleRef.current = () => {};
       flush();

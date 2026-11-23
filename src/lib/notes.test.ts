@@ -4,6 +4,7 @@ import {
   NOTE_LIMIT,
   applyEdit,
   charsLeft,
+  flushPending,
   loadNote,
   noteKey,
   saveNote,
@@ -68,6 +69,42 @@ describe('save and load', () => {
     const { storage, data } = fakeStorage({ [noteKey('day-12')]: 'old' });
     expect(saveNote('day-12', '', storage)).toBe(true);
     expect(data.get(noteKey('day-12'))).toBe('');
+  });
+});
+
+describe('flushPending', () => {
+  const refusing: NoteStorage = {
+    getItem: () => null,
+    setItem: () => {
+      throw new Error('blocked');
+    },
+  };
+
+  it('saves pending text and clears the pending flag', () => {
+    const { storage, data } = fakeStorage();
+    expect(flushPending('day-12', 'hello', true, storage)).toEqual({
+      result: 'saved',
+      pending: false,
+    });
+    expect(data.get(noteKey('day-12'))).toBe('hello');
+  });
+
+  it('does nothing when nothing is pending', () => {
+    const { storage, data } = fakeStorage();
+    expect(flushPending('day-12', 'hello', false, storage)).toEqual({
+      result: 'none',
+      pending: false,
+    });
+    expect(data.size).toBe(0);
+  });
+
+  it('keeps the text pending when saving fails, then saves on the next flush', () => {
+    const first = flushPending('day-12', 'hello', true, refusing);
+    expect(first).toEqual({ result: 'failed', pending: true });
+    const { storage, data } = fakeStorage();
+    const retry = flushPending('day-12', 'hello', first.pending, storage);
+    expect(retry).toEqual({ result: 'saved', pending: false });
+    expect(data.get(noteKey('day-12'))).toBe('hello');
   });
 });
 

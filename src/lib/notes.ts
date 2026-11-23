@@ -66,6 +66,24 @@ export function saveNote(
   }
 }
 
+export type FlushResult = 'none' | 'saved' | 'failed';
+
+/**
+ * Save the text that is waiting to be saved. Nothing pending means nothing is
+ * saved. If saving fails the text stays pending, so the next flush retries it
+ * and the failure is not forgotten.
+ */
+export function flushPending(
+  dayId: string,
+  text: string,
+  pending: boolean,
+  storage: NoteStorage | null = defaultStorage(),
+): { result: FlushResult; pending: boolean } {
+  if (!pending) return { result: 'none', pending: false };
+  const ok = saveNote(dayId, text, storage);
+  return ok ? { result: 'saved', pending: false } : { result: 'failed', pending: true };
+}
+
 /**
  * Apply an edit. Keeps the first 500 characters of the new text.
  * `shortened` is true only when more than one character was added at once
