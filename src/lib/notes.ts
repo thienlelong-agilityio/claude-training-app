@@ -95,20 +95,25 @@ export function flushPending(
   return ok ? { result: 'saved', pending: false } : { result: 'failed', pending: true };
 }
 
+export type EditKind = 'type' | 'paste';
+
 /**
  * Apply an edit. Keeps the first 500 characters of the new text.
- * `shortened` is true only when more than one character was added at once
- * (a paste) and the result went over the limit. Typing at the limit is cut silently.
+ * `kind` says how the text changed: typed (a keystroke) or pasted (paste, drop).
+ * A typed character over the limit is refused silently and the old text is kept.
+ * A paste over the limit is cut to 500 and `shortened` is true.
+ * When `kind` is not given, an edit that adds more than one character counts as a paste.
  */
 export function applyEdit(
   oldText: string,
   newText: string,
+  kind?: EditKind,
 ): { text: string; shortened: boolean } {
   const newChars = countChars(newText);
   if (newChars <= NOTE_LIMIT) return { text: newText, shortened: false };
-  const added = newChars - countChars(oldText);
-  // One character over the limit is typing: refuse it and keep the old text,
+  const isPaste = kind ? kind === 'paste' : newChars - countChars(oldText) > 1;
+  // Typing over the limit: refuse it and keep the old text,
   // so a character typed in the middle never pushes the end of the note out.
-  if (added <= 1) return { text: cut(oldText), shortened: false };
+  if (!isPaste) return { text: cut(oldText), shortened: false };
   return { text: cut(newText), shortened: true };
 }

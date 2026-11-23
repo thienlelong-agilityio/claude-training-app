@@ -1,7 +1,14 @@
 'use client';
 
-import { useEffect, useRef, useState, type ChangeEvent } from 'react';
-import { applyEdit, charsLeft, flushPending, loadNote, type FlushResult } from '@/lib/notes';
+import { useEffect, useRef, useState, type ChangeEvent, type CompositionEvent } from 'react';
+import {
+  applyEdit,
+  charsLeft,
+  flushPending,
+  loadNote,
+  type EditKind,
+  type FlushResult,
+} from '@/lib/notes';
 
 const SAVE_DELAY_MS = 2000;
 
@@ -61,8 +68,14 @@ export default function NoteArea({ dayId }: { dayId: string }) {
     };
   }, [dayId]);
 
-  function onChange(e: ChangeEvent<HTMLTextAreaElement>) {
-    const result = applyEdit(textRef.current, e.target.value);
+  function commit(value: string, kind: EditKind) {
+    const result = applyEdit(textRef.current, value, kind);
+    // A refused keystroke changes nothing: leave the save state alone.
+    if (result.text === textRef.current) {
+      setText(result.text);
+      if (result.shortened) setShortened(true);
+      return;
+    }
     textRef.current = result.text;
     pendingRef.current = true;
     setText(result.text);
@@ -70,6 +83,23 @@ export default function NoteArea({ dayId }: { dayId: string }) {
     setSaved(false);
     setSaveFailed(false);
     scheduleRef.current();
+  }
+
+  function onChange(e: ChangeEvent<HTMLTextAreaElement>) {
+    const native = e.nativeEvent as InputEvent;
+    // While an IME is composing, show the text but do not refuse or cut it;
+    // it is applied when the composition ends.
+    if (native.isComposing) {
+      setText(e.target.value);
+      return;
+    }
+    const type = native.inputType ?? '';
+    const kind: EditKind = type === 'insertText' || type === 'insertLineBreak' ? 'type' : 'paste';
+    commit(e.target.value, kind);
+  }
+
+  function onCompositionEnd(e: CompositionEvent<HTMLTextAreaElement>) {
+    commit(e.currentTarget.value, 'type');
   }
 
   const inputId = `note-${dayId}`;
@@ -84,6 +114,7 @@ export default function NoteArea({ dayId }: { dayId: string }) {
         value={text}
         disabled={!loaded}
         onChange={onChange}
+        onCompositionEnd={onCompositionEnd}
         rows={5}
         className="mt-2 w-full rounded-md border border-gray-300 p-2 text-sm"
       />

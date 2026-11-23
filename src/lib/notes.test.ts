@@ -144,6 +144,24 @@ describe('limit, cut and characters left', () => {
     expect(result.shortened).toBe(true);
   });
 
+  it('cuts and reports a paste that replaces a selection and nets one extra character', () => {
+    const full = 'a'.repeat(500);
+    const pasted = 'a'.repeat(200) + 'b'.repeat(101) + 'a'.repeat(200);
+    const result = applyEdit(full, pasted, 'paste');
+    expect(result.text).toBe('a'.repeat(200) + 'b'.repeat(101) + 'a'.repeat(199));
+    expect(result.shortened).toBe(true);
+  });
+
+  it('reports a paste into a full note even when nothing fits', () => {
+    const full = 'a'.repeat(500);
+    expect(applyEdit(full, full + 'b', 'paste')).toEqual({ text: full, shortened: true });
+  });
+
+  it('refuses a typed character even when the kind is given', () => {
+    const full = 'a'.repeat(500);
+    expect(applyEdit(full, full + 'b', 'type')).toEqual({ text: full, shortened: false });
+  });
+
   it('does not report a paste of exactly 500', () => {
     expect(applyEdit('', 'c'.repeat(500)).shortened).toBe(false);
   });
@@ -178,12 +196,16 @@ describe('independence from progress', () => {
   });
 
   it('still loads old boolean progress', () => {
-    const data = new Map([['training_progress', '{"day-12":true}']]);
-    const store = {
-      getItem: (k: string) => data.get(k) ?? null,
-      setItem: (k: string, v: string) => void data.set(k, v),
-    };
-    expect(loadLocalProgress(store as never)).toEqual({ 'day-12': true });
-    expect(typeof saveLocalProgress).toBe('function');
+    const { storage } = fakeStorage({ training_progress: '{"day-12":true}' });
+    expect(loadLocalProgress(storage)).toEqual({ 'day-12': true });
+  });
+
+  it('keeps notes and progress apart when both are saved', () => {
+    const { storage, data } = fakeStorage({ training_progress: '{"day-12":true}' });
+    saveNote('day-12', 'shipped it', storage);
+    saveLocalProgress({ 'day-12': true, 'day-13': true }, storage);
+    expect(loadNote('day-12', storage)).toBe('shipped it');
+    expect(loadLocalProgress(storage)).toEqual({ 'day-12': true, 'day-13': true });
+    expect(data.get('training_note_day-12')).toBe('shipped it');
   });
 });
