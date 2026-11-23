@@ -95,6 +95,12 @@ describe('limit, cut and characters left', () => {
     expect(last.shortened).toBe(false);
   });
 
+  it('refuses a character typed in the middle of a full note and keeps the end', () => {
+    const full = 'a'.repeat(499) + 'Z';
+    const result = applyEdit(full, 'X' + full);
+    expect(result).toEqual({ text: full, shortened: false });
+  });
+
   it('cuts a 600-character paste to 500 and reports it', () => {
     const result = applyEdit('', 'b'.repeat(600));
     expect(result.text).toBe('b'.repeat(500));

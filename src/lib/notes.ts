@@ -78,5 +78,8 @@ export function applyEdit(
   const newChars = countChars(newText);
   if (newChars <= NOTE_LIMIT) return { text: newText, shortened: false };
   const added = newChars - countChars(oldText);
-  return { text: cut(newText), shortened: added > 1 };
+  // One character over the limit is typing: refuse it and keep the old text,
+  // so a character typed in the middle never pushes the end of the note out.
+  if (added <= 1) return { text: cut(oldText), shortened: false };
+  return { text: cut(newText), shortened: true };
 }
